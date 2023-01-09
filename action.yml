@@ -30,6 +30,9 @@ outputs:
   cache-hit:
     description: 'A boolean value to indicate an exact match was found for the primary key. Returns \"\" when the key is new. Forwarded from actions/cache'
     value: ${{ steps.hit.outputs.cache-hit }}
+  cache-compiled-hit:
+    description: 'A boolean value to indicate an exact match was found for the primary key of the compiled cache. Returns \"\" when the key is new. Forwarded from actions/cache'
+    value: ${{ steps.hit.outputs.cache-compiled-hit }}
 
 runs:
   using: 'composite'
@@ -52,12 +55,30 @@ runs:
       id: cache
       with:
         path: "${{ format('{0}\n{1}\n{2}\n{3}', steps.paths.outputs.artifacts-path, steps.paths.outputs.packages-path, steps.paths.outputs.registries-path, steps.paths.outputs.precompilation-cache-path, steps.paths.outputs.scratchspaces-path) }}"
-        key: ${{ runner.os }}-test-${{ inputs.cache-name }}-${{ hashFiles('**/Project.toml') }}
+        key: ${{ inputs.cache-name }}-${{ hashFiles('**/Project.toml') }}
         restore-keys: |
-          ${{ runner.os }}-test-${{ inputs.cache-name }}-
+          ${{ inputs.cache-name }}-
+        enableCrossOsArchive: true
 
     - id: hit
       run: echo "cache-hit=$CACHE_HIT" >> $GITHUB_OUTPUT
       env:
         CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+      shell: bash
+
+    - uses: actions/cache@58c146cc91c5b9e778e71775dfe9bf1442ad9a12
+      id: cache-compiled
+      if: inputs.cache-compiled == 'true'
+      with:
+        path: ~/.julia/compiled
+        key: ${{ inputs.cache-name }}-compiled-${{ hashFiles('**/Project.toml') }}
+        restore-keys: |
+          ${{ inputs.cache-name }}-compiled-
+        enableCrossOsArchive: false
+
+    - id: compiled-hit
+      if: inputs.cache-compiled == 'true'
+      run: echo "cache-compiled-hit=$CACHE_HIT" >> $GITHUB_OUTPUT
+      env:
+        CACHE_HIT: ${{ steps.cache-compiled.outputs.cache-hit }}
       shell: bash
