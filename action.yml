@@ -45,8 +45,6 @@ runs:
         echo "packages-path=$P_PATH" >> $GITHUB_OUTPUT
         [ "${{ inputs.cache-registries }}" = "true" ] && R_PATH="~/.julia/registries"
         echo "registries-path=$R_PATH" >> $GITHUB_OUTPUT
-        [ "${{ inputs.cache-compiled }}" = "true" ] && PCC_PATH="~/.julia/compiled"
-        echo "precompilation-cache-path=$PCC_PATH" >> $GITHUB_OUTPUT
         [ "${{ inputs.cache-scratchspaces }}" = "true" ] && S_PATH="~/.julia/scratchspaces"
         echo "scratchspaces-path=$S_PATH" >> $GITHUB_OUTPUT
       shell: bash
@@ -54,7 +52,7 @@ runs:
     - uses: actions/cache@88522ab9f39a2ea568f7027eddc7d8d8bc9d59c8
       id: cache
       with:
-        path: "${{ format('{0}\n{1}\n{2}\n{3}', steps.paths.outputs.artifacts-path, steps.paths.outputs.packages-path, steps.paths.outputs.registries-path, steps.paths.outputs.precompilation-cache-path, steps.paths.outputs.scratchspaces-path) }}"
+        path: "${{ format('{0}\n{1}\n{2}\n{3}', steps.paths.outputs.artifacts-path, steps.paths.outputs.packages-path, steps.paths.outputs.registries-path, steps.paths.outputs.scratchspaces-path) }}"
         key: ${{ inputs.cache-name }}-${{ hashFiles('**/Project.toml') }}
         restore-keys: |
           ${{ inputs.cache-name }}-
@@ -71,7 +69,7 @@ runs:
       if: inputs.cache-compiled == 'true'
       with:
         path: ~/.julia/compiled
-        key: ${{ inputs.cache-name }}-compiled-${{ hashFiles('**/Project.toml') }}
+        key: ${{ inputs.cache-name }}-compiled-${{ runner.os }}-${{ hashFiles('**/Project.toml') }}-${{ hashFiles('**/Manifest.toml') }}
         restore-keys: |
           ${{ inputs.cache-name }}-compiled-
         enableCrossOsArchive: false
