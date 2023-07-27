@@ -20,8 +20,8 @@ inputs:
     description: 'Whether to cache ~/.julia/registries/'
     default: 'true'
   cache-compiled:
-    description: 'Whether to cache ~/.julia/compiled. USE WITH CAUTION! See https://github.com/julia-actions/cache/issues/11 for caveats.'
-    default: 'false'
+    description: 'Whether to cache ~/.julia/compiled/'
+    default: 'true'
   cache-scratchspaces:
     description: 'Whether to cache ~/.julia/scratchspaces/'
     default: 'true'
